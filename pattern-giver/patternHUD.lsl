@@ -11,8 +11,9 @@
 
 //Channel to Listen for Commands on
 integer channelID;
-//Command to Listen for
-string commandName;
+
+//Command to Tune HUD
+string cmdHUDTune;
 
 //HUD Settings
 integer hudChannel = -2784831;
@@ -20,10 +21,13 @@ string hudID;
 
 //Notecard Configuration Variables
 integer line;
-string configFile = "patternGiver.cfg";
+string configFile = "patternHUD.cfg";
 key readLineID;
 integer loaded = FALSE;
 
+//Variables
+returnChannel = -2784832;
+integer  gListener;
 
 
 //Initialisation 
@@ -53,19 +57,7 @@ processConfiguration(string data)
         string commandStatus;
         string touchStatus;
         // Tell Owner What was Loaded
-        if(commandEnabled == TRUE){
-            commandStatus = "Enabled";
-        }
-        else {
-            commandStatus = "Disabled";
-        }
-        if(touchEnabled == TRUE){
-            touchStatus = "Enabled";
-        }
-        else {
-            touchStatus = "Disabled";
-        }
-        llOwnerSay("\nSystem Initialised.\n\nCommand Channel Set to: " + (string)channelID +"\nCommand Set to: " + commandName + "\nCommand Status: " + commandStatus+ "\nTouch Status: " + touchStatus);
+        llOwnerSay("\nSystem Initialised.\n\nCommand Channel Set to: " + (string)channelID +"\nCommand Set to: " + commandName);
  
         // When Done Sending Config Values, Exit Sub-Routine
         llListen(channelID,"", NULL_KEY, "");
@@ -107,65 +99,10 @@ processConfiguration(string data)
                         channelID = (integer)value;
                     }
                     // Command Name
-                    else if(name == "commandname"){
-                        commandName = value;
-                    }
-                    // Command Enabled
-                    else if(name == "commandenabled"){
-                        string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            commandEnabled = TRUE;
-                        }
-                        else {
-                            commandEnabled = FALSE;    
-                        }
-                    }
-                    // Touch Enabled
-                    else if(name == "touchenabled"){
-                       string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            touchEnabled = TRUE;
-                        }
-                        else {
-                            touchEnabled = FALSE;    
-                        }
-                    }
-                    // Chat Display Enabled
-                    else if(name == "displaychat"){
-                       string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            displayChat = TRUE;
-                        }
-                        else {
-                            displayChat = FALSE;    
-                        }
-                    }
-                    // Popup Display Enabled
-                    else if(name == "displaypopup"){
-                       string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            displayPopup = TRUE;
-                        }
-                        else {
-                            displayPopup = FALSE;    
-                        }
+                    else if(name == "cmdhudtune"){
+                        cmdHUDTune = value;
                     }
                     
-                    
-                    // HUD Link Enabled
-                    else if (name == "hudlinkenabled"){
-                        string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            hudLinkEnabled = TRUE;
-                        }
-                        else {
-                            hudLinkEnabled = FALSE;    
-                        }
-                    }   
-                    // HUD Link ID 
-                    else if (name == "hudid"){
-                        hudID = value;
-                    }
                     
                     // Unknown Config Value    
                     else{
@@ -183,6 +120,14 @@ processConfiguration(string data)
     readLineID = llGetNotecardLine(configFile, line++);
  
 }
+
+string left(string src, string divider) {
+    integer index = llSubStringIndex( src, divider );
+    if(~index)
+        return llDeleteSubString( src, index, -1);
+    return src;
+}
+
 
 
 
@@ -204,6 +149,15 @@ default
     }
     listen(integer channel, string name, key id, string message) {
         
+        if (message == cmdHUDTune) {
+            gListener = llListen( returnChannel, "", "", "");
+            llTextBox(llDetectedKey(0), "Some info text for the top of the window...", channel);
+        }
+        if (channel == returnChannel) {
+            llListenRemove(gListener);
+            hudID = llStringTrim(message,STRING_TRIM);
+            llOwnerSay("HUD Tuned to: " + hudID);
+        }
     }
     
     touch_start(integer num_detected) {
