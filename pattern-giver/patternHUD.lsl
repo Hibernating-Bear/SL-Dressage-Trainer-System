@@ -26,8 +26,8 @@ key readLineID;
 integer loaded = FALSE;
 
 //Variables
-returnChannel = -2784832;
-integer  gListener;
+integer returnChannel = -2784832;
+integer gListener;
 
 
 //Initialisation 
@@ -57,7 +57,7 @@ processConfiguration(string data)
         string commandStatus;
         string touchStatus;
         // Tell Owner What was Loaded
-        llOwnerSay("\nSystem Initialised.\n\nCommand Channel Set to: " + (string)channelID +"\nCommand Set to: " + commandName);
+        llOwnerSay("\nSystem Initialised.\n\nCommand Channel Set to: " + (string)channelID +"\nHUD Tune Command: " + cmdHUDTune);
  
         // When Done Sending Config Values, Exit Sub-Routine
         llListen(channelID,"", NULL_KEY, "");
