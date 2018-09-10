@@ -17,6 +17,7 @@ string cmdHUDTune;
 
 //HUD Settings
 integer hudChannel = -2784831;
+//integer hudChannel = 992;
 string hudID;
 
 //Notecard Configuration Variables
@@ -28,7 +29,8 @@ integer loaded = FALSE;
 //Variables
 integer returnChannel = -2784832;
 integer gListener;
-
+key id;
+string userID;
 
 //Initialisation 
 init () {
@@ -128,15 +130,36 @@ string left(string src, string divider) {
     return src;
 }
 
+string right(string src, string divider) {
+    integer index = llSubStringIndex( src, divider );
+    if(~index)
+        return llDeleteSubString( src, 0, index + llStringLength(divider) - 1);
+    return src;
+}
 
+string uniqueUserID(key id) {
+    
+    string name = llKey2Name(id);
+    string lastName = right(name, " ");
+
+    string first = llGetSubString(name, 0, 0);
+    string second = llGetSubString(lastName, 0, 0);
+    string firstSecond = first + second;
+    return firstSecond;
+}
+
+    
 
 
 default
 { 
     state_entry() {
         init();
-       
-        key id = llGetOwner();
+        
+        id = llGetOwner();
+        userID = uniqueUserID(id);
+        hudID = userID + "HUD";
+        llListen(hudChannel,"", NULL_KEY, "");
         llRegionSayTo(id, 0, "\nInitialising Pattern HUD \nPlease Wait..." );
         
     }
@@ -151,17 +174,30 @@ default
         
         if (message == cmdHUDTune) {
             gListener = llListen( returnChannel, "", "", "");
-            llTextBox(llDetectedKey(0), "Some info text for the top of the window...", channel);
+            llTextBox(id, "Please type the ID of the Pattern Giver you wish to Tune Your HUD to.\nCurrently Tuned to: " + hudID, returnChannel);
         }
         if (channel == returnChannel) {
             llListenRemove(gListener);
             hudID = llStringTrim(message,STRING_TRIM);
             llOwnerSay("HUD Tuned to: " + hudID);
         }
+        if (channel == hudChannel) {
+            string incomingID = left(message, "|");
+            if (incomingID == hudID) {
+                llOwnerSay("Lets Do Dis");    
+            }
+        }
     }
     
     touch_start(integer num_detected) {
+        llOwnerSay(llGetUsername(id));
         
+        string name = llKey2Name(id);
+ 
+        string detectedName = llDetectedName(0);
+ 
+        llOwnerSay("llKey2Name: " + name
+            + "\nllDetectedName: " + detectedName);
     }
     
     changed(integer change)
