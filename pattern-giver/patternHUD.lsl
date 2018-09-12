@@ -17,7 +17,6 @@ string cmdHUDTune;
 
 //HUD Settings
 integer hudChannel = -2784831;
-//integer hudChannel = 992;
 string hudID;
 
 //Notecard Configuration Variables
@@ -31,6 +30,7 @@ integer returnChannel = -2784832;
 integer gListener;
 key id;
 string userID;
+list currentPattern;
 
 //Initialisation 
 init () {
@@ -138,24 +138,20 @@ string right(string src, string divider) {
 }
 
 string uniqueUserID(key id) {
-    
     string name = llKey2Name(id);
     string lastName = right(name, " ");
-
     string first = llGetSubString(name, 0, 0);
     string second = llGetSubString(lastName, 0, 0);
     string firstSecond = first + second;
     return firstSecond;
 }
 
-    
-
 
 default
 { 
     state_entry() {
         init();
-        
+        currentPattern = [];
         id = llGetOwner();
         userID = uniqueUserID(id);
         hudID = userID + "HUD";
@@ -184,7 +180,18 @@ default
         if (channel == hudChannel) {
             string incomingID = left(message, "|");
             if (incomingID == hudID) {
-                llOwnerSay("Lets Do Dis");    
+                currentPattern = llParseString2List(message, ["|"],[]);
+                integer i = 0;
+                integer discip = 0;
+                integer letter = 0;
+                integer order = 0;
+                key aID;
+                for (; i < 5; ++i){
+                    order = 1 + i;                    
+                    discip = (2 * i) + 1;
+                    letter = (2 * i) + 2;
+                    llMessageLinked(LINK_THIS, 0, (string)order + "|" + llList2String(currentPattern,discip) + "|" + llList2String(currentPattern,letter), aID);
+                }
             }
         }
     }
@@ -198,6 +205,11 @@ default
  
         llOwnerSay("llKey2Name: " + name
             + "\nllDetectedName: " + detectedName);
+    }
+    
+    link_message(integer sender_num, integer num, string msg, key id)
+    {
+        llOwnerSay(msg);
     }
     
     changed(integer change)
