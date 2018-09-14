@@ -15,6 +15,11 @@ integer channelID;
 //Command to Tune HUD
 string cmdHUDTune;
 
+//Unlock Command
+string unlockCommand;
+//Lock Command
+string lockCommand;
+
 //HUD Settings
 integer hudChannel = -2784831;
 string hudID;
@@ -25,12 +30,19 @@ string configFile = "patternHUD.cfg";
 key readLineID;
 integer loaded = FALSE;
 
+//Whip Sound
+string whipSound = "tapSound";
+
+//Bow Animation
+string bowAni = "human bow";
+
 //Variables
 integer returnChannel = -2784832;
 integer gListener;
 key id;
 string userID;
 list currentPattern;
+integer hudListenerCom;
 
 //Initialisation 
 init () {
@@ -104,6 +116,14 @@ processConfiguration(string data)
                     else if(name == "cmdhudtune"){
                         cmdHUDTune = value;
                     }
+                    // Unlock Command
+                    else if(name == "unlockcmd"){
+                        unlockCommand = value;
+                    }
+                    // Lock Command
+                    else if(name == "lockcmd"){
+                        lockCommand = value;
+                    }
                     
                     
                     // Unknown Config Value    
@@ -139,13 +159,14 @@ string right(string src, string divider) {
 
 string uniqueUserID(key id) {
     string name = llKey2Name(id);
+    string nameID = (string)id;
     string lastName = right(name, " ");
+    string uniqueNum = llGetSubString(nameID, 0, 7);
     string first = llGetSubString(name, 0, 0);
     string second = llGetSubString(lastName, 0, 0);
-    string firstSecond = first + second;
+    string firstSecond = uniqueNum + first + second;
     return firstSecond;
 }
-
 
 default
 { 
@@ -155,7 +176,8 @@ default
         id = llGetOwner();
         userID = uniqueUserID(id);
         hudID = userID + "HUD";
-        llListen(hudChannel,"", NULL_KEY, "");
+        llRequestPermissions(id, PERMISSION_TRIGGER_ANIMATION);
+        hudListenerCom = llListen(hudChannel,"", NULL_KEY, "");
         llRegionSayTo(id, 0, "\nInitialising Pattern HUD \nPlease Wait..." );
         
     }
@@ -167,6 +189,17 @@ default
         init();         
     }
     listen(integer channel, string name, key id, string message) {
+        
+        key idCom = llGetOwner();
+        if (id == idCom && llToLower(message) == llToLower(lockCommand)){
+            llListenRemove(hudListenerCom);  
+            llOwnerSay("HUD Locked");  
+        }
+        if (id == idCom && llToLower(message) == llToLower(unlockCommand)){
+            hudListenerCom = llListen(hudChannel,"", NULL_KEY, "");
+            llOwnerSay("HUD Unlocked");
+            
+        }
         
         if (message == cmdHUDTune) {
             gListener = llListen( returnChannel, "", "", "");
@@ -190,26 +223,22 @@ default
                     order = 1 + i;                    
                     discip = (2 * i) + 1;
                     letter = (2 * i) + 2;
-                    llMessageLinked(LINK_THIS, 0, (string)order + "|" + llList2String(currentPattern,discip) + "|" + llList2String(currentPattern,letter), aID);
+                    llMessageLinked(LINK_ALL_CHILDREN, 0, (string)order + "|" + llList2String(currentPattern,discip) + llList2String(currentPattern,letter), aID);
                 }
             }
         }
     }
     
-    touch_start(integer num_detected) {
-        llOwnerSay(llGetUsername(id));
-        
-        string name = llKey2Name(id);
- 
-        string detectedName = llDetectedName(0);
- 
-        llOwnerSay("llKey2Name: " + name
-            + "\nllDetectedName: " + detectedName);
-    }
+
     
     link_message(integer sender_num, integer num, string msg, key id)
     {
-        llOwnerSay(msg);
+        if (msg == "bow"){
+            llStartAnimation(bowAni); 
+        }
+        if (msg == "whip"){
+            llTriggerSound(whipSound, 1.0);
+        } 
     }
     
     changed(integer change)
