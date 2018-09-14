@@ -21,7 +21,10 @@ integer displayPopup;
 //HUD Broadcast System
 integer hudLinkEnabled;
 integer hudChannel = -2784831;
+string hudLoc;
 string hudID;
+string userID;
+string hudTransmit;
 //Notecard Configuration Variables
 integer line;
 string configFile = "patternGiver.cfg";
@@ -34,6 +37,8 @@ list slalomLetters = ["E", "F"];
 list circleLetters = ["C", "D", "G", "H"];
 list lineForLetters = ["C", "H"];
 list lineBackLetters = ["D", "G"];
+//Other Global Variables
+key idA;
 
 
 
@@ -54,6 +59,31 @@ init () {
     // read the first line
     readLineID = llGetNotecardLine(configFile, line++);
  
+}
+
+string left(string src, string divider) {
+    integer index = llSubStringIndex( src, divider );
+    if(~index)
+        return llDeleteSubString( src, index, -1);
+    return src;
+}
+
+string right(string src, string divider) {
+    integer index = llSubStringIndex( src, divider );
+    if(~index)
+        return llDeleteSubString( src, 0, index + llStringLength(divider) - 1);
+    return src;
+}
+
+string uniqueUserID(key id) {
+    string name = llKey2Name(id);
+    string nameID = (string)id;
+    string lastName = right(name, " ");
+    string uniqueNum = llGetSubString(nameID, 0, 7);
+    string first = llGetSubString(name, 0, 0);
+    string second = llGetSubString(lastName, 0, 0);
+    string firstSecond = uniqueNum + first + second;
+    return firstSecond;
 }
 
 processConfiguration(string data)
@@ -174,8 +204,24 @@ processConfiguration(string data)
                         }
                     }   
                     // HUD Link ID 
-                    else if (name == "hudid"){
-                        hudID = value;
+                    else if (name == "hudloc"){
+                        string tempValue = llToLower(value);
+                        if (tempValue == "remote"){
+                            hudLoc = "Remote";
+                        }
+                        else {
+                            hudLoc = "Local";
+                        }
+                    }
+                    // HUD Link ID 
+                    else if (name == "hudid"){ 
+                        if (hudLoc == "Remote"){
+                            hudID = value;
+                        }
+                        else {
+                            userID = uniqueUserID(idA);
+                            hudID = userID + "HUD";
+                        }
                     }
                     
                     // Unknown Config Value    
@@ -200,6 +246,7 @@ randomPatternScript(key id) {
         list patternGen = [];
         list randPattern = [];
         list randLetter = [];
+        hudTransmit = hudID + "|";
         string pattern = "";
         integer i = 0;
         string patternMessage = ""; 
@@ -215,31 +262,36 @@ randomPatternScript(key id) {
             if (llList2Integer(randPattern, pos) == 0){
                 randLetter = llListRandomize(figEightLetters, 1);
                 pattern = "Figure 8 from " + llList2String(randLetter, 0);
-                patternGen = (patternGen=[]) + patternGen + [pattern]; 
-            }
+                patternGen = (patternGen=[]) + patternGen + [pattern];
+                hudTransmit = hudTransmit + "fig8|" + llList2String(randLetter, 0) + "|";
+            }   
             //Slalom Random
             if (llList2Integer(randPattern, pos) == 1){
                 randLetter = llListRandomize(slalomLetters, 1);
                 pattern = "Slalom from " + llList2String(randLetter, 0);
-                patternGen = (patternGen=[]) + patternGen + [pattern]; 
+                patternGen = (patternGen=[]) + patternGen + [pattern];
+                hudTransmit = hudTransmit + "sla|" + llList2String(randLetter, 0) + "|"; 
             }
             //Circle Random
             if (llList2Integer(randPattern, pos) == 2){
                 randLetter = llListRandomize(circleLetters, 1);
                 pattern = "Circle from " + llList2String(randLetter, 0);
-                patternGen = (patternGen=[]) + patternGen + [pattern]; 
+                patternGen = (patternGen=[]) + patternGen + [pattern];
+                hudTransmit = hudTransmit + "cir|" + llList2String(randLetter, 0) + "|"; 
             }
             //Line (Forward) Random
             if (llList2Integer(randPattern, pos) == 3){
                 randLetter = llListRandomize(lineForLetters, 1);
                 pattern = "Line from " + llList2String(randLetter, 0);
-                patternGen = (patternGen=[]) + patternGen + [pattern]; 
+                patternGen = (patternGen=[]) + patternGen + [pattern];
+                hudTransmit = hudTransmit + "line|" + llList2String(randLetter, 0) + "|"; 
             }
             //Line (Backward) Random
             if (llList2Integer(randPattern, pos) == 4){
                 randLetter = llListRandomize(lineBackLetters, 1);
                 pattern = "Line from " + llList2String(randLetter, 0);
-                patternGen = (patternGen=[]) + patternGen + [pattern]; 
+                patternGen = (patternGen=[]) + patternGen + [pattern];
+                hudTransmit = hudTransmit + "line|" + llList2String(randLetter, 0) + "|"; 
             }
         }
         
@@ -256,6 +308,9 @@ randomPatternScript(key id) {
         if (displayChat == TRUE) {
             llRegionSayTo(id, 0, "\n" + patternMessage );
         }
+        if (hudLinkEnabled == TRUE) {
+            llSay(hudChannel, hudTransmit);  
+        }
         
 }
 
@@ -264,9 +319,8 @@ randomPatternScript(key id) {
 default
 { 
     state_entry() {
-        
+        idA = llGetOwner();
         init();
-       
         key id = llGetOwner();
         llRegionSayTo(id, 0, "\nInitialising Pattern Giver \nPlease Wait..." );
         
@@ -276,9 +330,15 @@ default
      on_rez(integer start_param)
     {
         llResetScript();
+        idA = llGetOwner();
         init();         
     }
+    
     listen(integer channel, string name, key id, string message) {
+        if (message == "hudname"){
+            llOwnerSay(hudID);    
+        }
+        
         if (commandEnabled == TRUE) {   
             if (message == commandName) {
                 key id = id;
