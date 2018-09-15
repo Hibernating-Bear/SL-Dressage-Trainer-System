@@ -30,11 +30,13 @@ string configFile = "patternHUD.cfg";
 key readLineID;
 integer loaded = FALSE;
 
-//Whip Sound
-string whipSound = "tapSound";
+//Whip Settings
+string whipSound;
+integer whipMsgEnabled;
+string whipMsg;
 
 //Bow Animation
-string bowAni = "human bow";
+string bowAni;
 
 //Variables
 integer returnChannel = -2784832;
@@ -43,6 +45,7 @@ key id;
 string userID;
 list currentPattern;
 integer hudListenerCom;
+key globalUserID;
 
 //Initialisation 
 init () {
@@ -71,7 +74,7 @@ processConfiguration(string data)
         string commandStatus;
         string touchStatus;
         // Tell Owner What was Loaded
-        llOwnerSay("\nSystem Initialised.\n\nCommand Channel Set to: " + (string)channelID +"\nHUD Tune Command: " + cmdHUDTune);
+        llOwnerSay("System Initialised");
  
         // When Done Sending Config Values, Exit Sub-Routine
         llListen(channelID,"", NULL_KEY, "");
@@ -124,6 +127,29 @@ processConfiguration(string data)
                     else if(name == "lockcmd"){
                         lockCommand = value;
                     }
+                    // Bow Animation
+                    else if (name == "bowani"){
+                        bowAni = value;
+                    }
+                    //Whip Sound
+                    else if (name == "whipsound"){
+                        whipSound = value;   
+                    }    
+                    //Whip Message Enabled
+                    else if (name == "whipmsgenabled"){
+                        string tempValue = llToLower(value);
+                        if (tempValue == "true"){
+                            whipMsgEnabled = TRUE;
+                        }
+                        else{
+                            whipMsgEnabled = FALSE;
+                        }    
+                    }
+                    //Whip Message
+                    else if (name == "whipmsg"){
+                        whipMsg = value;    
+                    }    
+                    
                     
                     
                     // Unknown Config Value    
@@ -174,11 +200,11 @@ default
         init();
         currentPattern = [];
         id = llGetOwner();
+        globalUserID = id;
         userID = uniqueUserID(id);
         hudID = userID + "HUD";
         llRequestPermissions(id, PERMISSION_TRIGGER_ANIMATION);
         hudListenerCom = llListen(hudChannel,"", NULL_KEY, "");
-        llRegionSayTo(id, 0, "\nInitialising Pattern HUD \nPlease Wait..." );
         
     }
 
@@ -238,6 +264,9 @@ default
         }
         if (msg == "whip"){
             llTriggerSound(whipSound, 1.0);
+            if (whipMsgEnabled == TRUE){
+                llSay(0, llGetDisplayName(globalUserID) + " " + whipMsg);
+            }
         } 
     }
     
