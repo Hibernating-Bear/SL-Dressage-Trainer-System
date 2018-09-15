@@ -91,22 +91,8 @@ processConfiguration(string data)
     // End of Configuration File
     if(data == EOF)
     {
-        string commandStatus;
-        string touchStatus;
-        // Tell Owner What was Loaded
-        if(commandEnabled == TRUE){
-            commandStatus = "Enabled";
-        }
-        else {
-            commandStatus = "Disabled";
-        }
-        if(touchEnabled == TRUE){
-            touchStatus = "Enabled";
-        }
-        else {
-            touchStatus = "Disabled";
-        }
-        llOwnerSay("\nSystem Initialised.\n\nCommand Channel Set to: " + (string)channelID +"\nCommand Set to: " + commandName + "\nCommand Status: " + commandStatus+ "\nTouch Status: " + touchStatus);
+        
+        llOwnerSay("System Initialised");
  
         // When Done Sending Config Values, Exit Sub-Routine
         llListen(channelID,"", NULL_KEY, "");
@@ -321,9 +307,7 @@ default
     state_entry() {
         idA = llGetOwner();
         init();
-        key id = llGetOwner();
-        llRegionSayTo(id, 0, "\nInitialising Pattern Giver \nPlease Wait..." );
-        
+        key id = llGetOwner();        
     }
 
     
@@ -335,12 +319,29 @@ default
     }
     
     listen(integer channel, string name, key id, string message) {
-        if (message == "hudname"){
-            llOwnerSay(hudID);    
+        if (llToLower(message) == "hudname"){
+            llOwnerSay("HUD Link set to: "+ hudID);    
         }
-        
+        if (llToLower(message) == "settings"){
+            string commandStatus;
+            string touchStatus;
+            // Tell Owner What was Loaded
+            if(commandEnabled == TRUE){
+                commandStatus = "Enabled";
+            }
+            else {
+                commandStatus = "Disabled";
+            }
+            if(touchEnabled == TRUE){
+                touchStatus = "Enabled";
+            }
+            else {
+                touchStatus = "Disabled";
+            }
+             llRegionSayTo(id, 0, "\nCurrent Settings\n\nTouch Status: " + touchStatus + "\nCommand Status: " + commandStatus + "\nCommand Channel: " + (string)channelID + "\nPattern Command: " + commandName + "  ");
+        }
         if (commandEnabled == TRUE) {   
-            if (message == commandName) {
+            if (llToLower(message) == llToLower(commandName)) {
                 key id = id;
                 randomPatternScript(id);
             }
