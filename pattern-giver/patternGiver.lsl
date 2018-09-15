@@ -295,7 +295,11 @@ randomPatternScript(key id) {
             llRegionSayTo(id, 0, "\n" + patternMessage );
         }
         if (hudLinkEnabled == TRUE) {
-            llSay(hudChannel, hudTransmit);  
+            llSay(hudChannel, hudTransmit);
+            llSleep(0.5); 
+            llSay(hudChannel, hudTransmit);
+            llSleep(0.5);  
+            llSay(hudChannel, hudTransmit);
         }
         
 }
