@@ -193,6 +193,15 @@ string uniqueUserID(key id) {
     string firstSecond = uniqueNum + first + second;
     return firstSecond;
 }
+hudClear(){
+    integer d = 0;
+    integer dis;
+    key bID;
+    for (; d < 5; ++d){ 
+        dis = d + 1;
+        llMessageLinked(LINK_ALL_CHILDREN, 0, (string)dis + "|blank", bID);
+    }
+}
 
 default
 { 
@@ -225,6 +234,18 @@ default
             hudListenerCom = llListen(hudChannel,"", NULL_KEY, "");
             llOwnerSay("HUD Unlocked");
             
+        }
+        if (id == idCom && llToLower(message) == "settings"){
+        llRegionSayTo(id, 0, "\nCurrent Settings\n\n\nCommand Channel: " + (string)channelID + "\nTune HUD Command: " + cmdHUDTune + "\nLock HUD Command: " + lockCommand + "\nUnlock HUD Command: " + unlockCommand + "\nHUD Tuned to: " + hudID);
+        }
+        if (id == idCom && llToLower(message) == "reset"){
+            llOwnerSay("HUD Resetting");
+            hudClear();
+            llResetScript();
+        }
+        if (id == idCom && llToLower(message) == "clear"){
+            llOwnerSay("Clearing Pattern");
+            hudClear();
         }
         
         if (id == idCom && llToLower(message) == llToLower(cmdHUDTune)) {
