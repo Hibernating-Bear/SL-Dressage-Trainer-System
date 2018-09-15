@@ -232,7 +232,6 @@ default
             llTextBox(id, "Please type the ID of the Pattern Giver you wish to Tune Your HUD to.\nCurrently Tuned to: " + hudID, returnChannel);
         }
         if (id == idCom && channel == returnChannel) {
-            llOwnerSay((string)id);
             llListenRemove(gListener);
             hudID = llStringTrim(message,STRING_TRIM);
             llOwnerSay("HUD Tuned to: " + hudID);
