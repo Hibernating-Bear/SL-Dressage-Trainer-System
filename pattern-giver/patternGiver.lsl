@@ -209,6 +209,10 @@ processConfiguration(string data)
                             hudID = userID + "HUD";
                         }
                     }
+                    // Hover Display Enabled
+                    else if (name == "hoverdisp"){
+                        
+                    }
                     
                     // Unknown Config Value    
                     else{
