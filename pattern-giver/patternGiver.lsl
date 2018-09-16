@@ -285,7 +285,6 @@ default
                 string output="";
                 if(hudLinkEnabled){
                     if(hudLoc=="remote"){
-                        //llSay(0, "appending");
                         output="HUD Channel: "+hudID;
                     }
                 }
