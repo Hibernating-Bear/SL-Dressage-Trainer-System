@@ -25,6 +25,10 @@ string configFile = "patternGiver.cfg";
 key readLineID;
 integer loaded = FALSE;
 
+//Text Appearance
+vector COLOUR_WHITE = <1.0, 1.0, 1.0>;
+float  OPAQUE = 1.0;
+
 //Initialisation 
 init () {
     
@@ -55,10 +59,13 @@ processConfiguration(string data)
                 if (hudLoc == "Remote") {
                     outputText = outputText + "\nHUD Channel: " + hudID;
                 }
-                if (commandEnabled == TRUE) {
-                    outputText = outputText + "\nCommand Set to: /" + (string)commandID + " " + commandName;
-                }
-                outputText = outputText + "\n \n \n ";
+            }
+            if (commandEnabled == TRUE) {
+                outputText = outputText + "\nCommand Set to: /" + (string)channelID + " " + commandName;
+            }
+            outputText = outputText + "\n \n \n ";
+            llSetText(outputText, COLOUR_WHITE, OPAQUE);
+            
         }
        
  
@@ -181,9 +188,8 @@ processConfiguration(string data)
 }
 
 
-/Main Script
-default
-{ 
+//Main Script
+default { 
     state_entry() {
         llSetText("", ZERO_VECTOR, 0);
         init();       
