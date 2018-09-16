@@ -282,13 +282,15 @@ default
                 }
                 readLineID = llGetNotecardLine(configFile,line++);
             } else {
-                string output;
+                string output="";
                 if(hudLinkEnabled){
-                    if(hudLoc=="remote")
-                        output+="\nHUD Channel: "+hudID;
+                    if(hudLoc=="remote"){
+                        //llSay(0, "appending");
+                        output="HUD Channel: "+hudID;
+                    }
                 }
                 if(commandEnabled){
-                    output+=output+"\nCommand Set To: /"+ (string)channelID+" "+commandName;
+                    output+="\nCommand Set To: /"+ (string)channelID+" "+commandName;
                 }
                 llSetText(output, <1,1,1>,1);
                 llOwnerSay("System Initialized");
