@@ -170,8 +170,8 @@ default
     
     changed(integer change)
     {
-        if(change & CHANGED_INVENTORY) init();
-        else if(change & CHANGED_OWNER) init();
+        if(change & CHANGED_INVENTORY) llResetScript();;
+        else if(change & CHANGED_OWNER) llResetScript();;
     }
     dataserver(key request_id, string data)
     {
