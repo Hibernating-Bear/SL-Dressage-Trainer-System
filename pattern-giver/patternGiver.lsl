@@ -18,6 +18,7 @@ integer touchEnabled;
 integer commandEnabled;
 integer displayChat;
 integer displayPopup;
+integer hoverDisp;
 //HUD Broadcast System
 integer hudLinkEnabled;
 integer hudChannel = -2784831;
@@ -232,7 +233,7 @@ default
     {
         if(request_id == readLineID){
             if(data!=EOF){
-                list lList=llParseString2List(data,[" = "," "],[]);
+                list lList=llParseString2List(data, [" = "], ["#"]);
                 if(llList2String(lList,0)=="#") {}//Ignore
                 else if(llList2String(lList,0) == "commandEnabled"){
                     if(llToLower(llList2String(lList,1))=="true")
@@ -269,8 +270,6 @@ default
                         hudLoc="local";
                     } else if(llToLower(llList2String(lList,1)) == "remote"){
                         hudLoc = "remote";
-                    } else if(llToLower(llList2String(lList,1)) == "hud"){
-                        hudLoc="hud";
                     }
                 } else if(llList2String(lList,0) == "hudID"){
                     if(hudLoc == "remote"){
@@ -279,19 +278,29 @@ default
                         userID=uniqueUserID(idA);
                         hudID=userID+"HUD";
                     }
+                } else if(llList2String(lList,0) == "hoverDisp"){
+                    if(llToLower(llList2String(lList,1)) == "true"){
+                        hoverDisp = TRUE;
+                    }else
+                        hoverDisp = FALSE;
                 }
                 readLineID = llGetNotecardLine(configFile,line++);
             } else {
                 string output="";
-                if(hudLinkEnabled){
+                llSetText("", ZERO_VECTOR,0);
+                if(hoverDisp){
                     if(hudLoc=="remote"){
-                        output="HUD Channel: "+hudID;
+                        if(hudLinkEnabled){
+                            output="HUD Channel: "+hudID;
+                        } 
+                
+                        if(commandEnabled){
+                            output+="\nCommand Set To: /"+ (string)channelID+" "+commandName;
+                        }
+                    
+                        llSetText(output + "\n \n \n \n", <1,1,1>,1);
                     }
                 }
-                if(commandEnabled){
-                    output+="\nCommand Set To: /"+ (string)channelID+" "+commandName;
-                }
-                llSetText(output, <1,1,1>,1);
                 llListen(channelID, "", "", "");
                 llOwnerSay("System Initialized");
             }
