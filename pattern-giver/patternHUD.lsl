@@ -47,6 +47,24 @@ list currentPattern;
 integer hudListenerCom;
 key globalUserID;
 
+//Initialisation 
+init () {
+    
+    // make sure the file exists and is a notecard
+    if(llGetInventoryType(configFile) != INVENTORY_NOTECARD)
+    {
+        // notify owner of missing file
+        llOwnerSay("Missing inventory Notecard: " + configFile);
+        return; // don't do anything else
+    }
+ 
+    // initialize to start reading from first line
+    line = 0;
+ 
+    // read the first line
+    readLineID = llGetNotecardLine(configFile, line++);
+ 
+}
 
 string left(string src, string divider) {
     integer index = llSubStringIndex( src, divider );
@@ -88,6 +106,7 @@ default
         currentPattern = [];
         id = llGetOwner();
         globalUserID = id;
+        init();
         userID = uniqueUserID(id);
         hudID = userID + "HUD";
         llRequestPermissions(id, PERMISSION_TRIGGER_ANIMATION);
@@ -170,8 +189,8 @@ default
     
     changed(integer change)
     {
-        if(change & CHANGED_INVENTORY) llResetScript();;
-        else if(change & CHANGED_OWNER) llResetScript();;
+        if(change & CHANGED_INVENTORY) llResetScript();
+        else if(change & CHANGED_OWNER) llResetScript();
     }
     dataserver(key request_id, string data)
     {
