@@ -273,13 +273,24 @@ default
                         hudLoc="hud";
                     }
                 } else if(llList2String(lList,0) == "hudID"){
-                    if(llToLower(llList2String(lList,1)) == "random"){
-                        userID  = uniqueUserID(idA);
-                        hudID = userID+"HUD";
+                    if(hudLoc == "remote"){
+                        hudID = llList2String(lList,1);
+                    }else{
+                        userID=uniqueUserID(idA);
+                        hudID=userID+"HUD";
                     }
                 }
                 readLineID = llGetNotecardLine(configFile,line++);
             } else {
+                string output;
+                if(hudLinkEnabled){
+                    if(hudLoc=="remote")
+                        output+="\nHUD Channel: "+hudID;
+                }
+                if(commandEnabled){
+                    output+=output+"\nCommand Set To: /"+ (string)channelID+" "+commandName;
+                }
+                llSetText(output, <1,1,1>,1);
                 llOwnerSay("System Initialized");
             }
         }
