@@ -76,7 +76,7 @@ hudClear(){
     integer d = 0;
     integer dis;
     key bID;
-    for (; d < 5; ++d){ 
+    for (d=0; d < 5; ++d){ 
         dis = d + 1;
         llMessageLinked(LINK_ALL_CHILDREN, 0, (string)dis + "|blank", bID);
     }
@@ -143,7 +143,7 @@ default
                 integer letter = 0;
                 integer order = 0;
                 key aID;
-                for (; i < 5; ++i){
+                for (i=0; i < 5; ++i){
                     order = 1 + i;                    
                     discip = (2 * i) + 1;
                     letter = (2 * i) + 2;
