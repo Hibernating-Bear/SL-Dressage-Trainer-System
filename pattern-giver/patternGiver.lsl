@@ -232,7 +232,7 @@ default
     {
         if(request_id == readLineID){
             if(data!=EOF){
-                list lList=llParseString2List(data,[" = "," "],[]);
+                list lList=llParseString2List(data, [" = "], ["#"]);
                 if(llList2String(lList,0)=="#") {}//Ignore
                 else if(llList2String(lList,0) == "commandEnabled"){
                     if(llToLower(llList2String(lList,1))=="true")
