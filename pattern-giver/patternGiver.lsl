@@ -86,150 +86,7 @@ string uniqueUserID(key id) {
     return firstSecond;
 }
 
-processConfiguration(string data)
-{
-    // End of Configuration File
-    if(data == EOF)
-    {
-        
-        llOwnerSay("System Initialised");
- 
-        // When Done Sending Config Values, Exit Sub-Routine
-        llListen(channelID,"", NULL_KEY, "");
-        return;
-    }
- 
-    // if we are not working with a blank line
-    if(data != "")
-    {
-        // if the line does not begin with a comment
-        if(llSubStringIndex(data, "#") != 0)
-        {
-            // find first equal sign
-            integer i = llSubStringIndex(data, "=");
- 
-            // if line contains equal sign
-            if(i != -1)
-            {
-                // get name of name/value pair
-                string name = llGetSubString(data, 0, i - 1);
- 
-                // get value of name/value pair
-                string value = llGetSubString(data, i + 1, -1);
- 
-                // trim name
-                list temp = llParseString2List(name, [" "], []);
-                name = llDumpList2String(temp, " ");
- 
-                // make name lowercase (case insensitive)
-                name = llToLower(name);
- 
-                // trim value
-                temp = llParseString2List(value, [" "], []);
-                value = llDumpList2String(temp, " ");
- 
-                // Parse Value in Config to Variable in Script
-                    // Command Channel
-                    if(name == "channelid"){
-                        channelID = (integer)value;
-                    }
-                    // Command Name
-                    else if(name == "commandname"){
-                        commandName = value;
-                    }
-                    // Command Enabled
-                    else if(name == "commandenabled"){
-                        string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            commandEnabled = TRUE;
-                        }
-                        else {
-                            commandEnabled = FALSE;    
-                        }
-                    }
-                    // Touch Enabled
-                    else if(name == "touchenabled"){
-                       string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            touchEnabled = TRUE;
-                        }
-                        else {
-                            touchEnabled = FALSE;    
-                        }
-                    }
-                    // Chat Display Enabled
-                    else if(name == "displaychat"){
-                       string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            displayChat = TRUE;
-                        }
-                        else {
-                            displayChat = FALSE;    
-                        }
-                    }
-                    // Popup Display Enabled
-                    else if(name == "displaypopup"){
-                       string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            displayPopup = TRUE;
-                        }
-                        else {
-                            displayPopup = FALSE;    
-                        }
-                    }
-                    
-                    
-                    // HUD Link Enabled
-                    else if (name == "hudlinkenabled"){
-                        string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            hudLinkEnabled = TRUE;
-                        }
-                        else {
-                            hudLinkEnabled = FALSE;    
-                        }
-                    }   
-                    // HUD Link ID 
-                    else if (name == "hudloc"){
-                        string tempValue = llToLower(value);
-                        if (tempValue == "remote"){
-                            hudLoc = "Remote";
-                        }
-                        else {
-                            hudLoc = "Local";
-                        }
-                    }
-                    // HUD Link ID 
-                    else if (name == "hudid"){ 
-                        if (hudLoc == "Remote"){
-                            hudID = value;
-                        }
-                        else {
-                            userID = uniqueUserID(idA);
-                            hudID = userID + "HUD";
-                        }
-                    }
-                    // Hover Display Enabled
-                    else if (name == "hoverdisp"){
-                        
-                    }
-                    
-                    // Unknown Config Value    
-                    else{
-                        llOwnerSay("Unknown configuration value: " + name + " on line " + (string)line);
-                    }
-            }
-            else  // Line has no Equals (=) Sign
-            {
-                llOwnerSay("Configuration could not be read on line " + (string)line);
-            }
-        }
-    }
- 
-    // Read Next Line in Config File
-    readLineID = llGetNotecardLine(configFile, line++);
- 
-}
+
 
 //Pattern Generating Function
 randomPatternScript(key id) {
@@ -245,7 +102,7 @@ randomPatternScript(key id) {
          
         //Randomise Pattern Letters Based on Discipline
         integer p = 0; 
-        for (; p < 5; ++p){
+        for (p=0; p < 5; ++p){
             randLetter = [];
             integer pos = (2 * p) + 1;
             //Figure 8 Random
@@ -321,9 +178,7 @@ default
     
      on_rez(integer start_param)
     {
-        llResetScript();
-        idA = llGetOwner();
-        init();         
+        llResetScript();    
     }
     
     listen(integer channel, string name, key id, string message) {
@@ -370,13 +225,64 @@ default
     }
     changed(integer change)
     {
-        if(change & CHANGED_INVENTORY) init();
-        else if(change & CHANGED_OWNER) init();
+        if(change & CHANGED_INVENTORY) llResetScript();
+        else if(change & CHANGED_OWNER) llResetScript();
     }
     dataserver(key request_id, string data)
     {
-        if(request_id == readLineID)
-            processConfiguration(data);
+        if(request_id == readLineID){
+            if(data!=EOF){
+                list lList=llParseString2List(data,[" = "," "],[]);
+                if(llList2String(lList,0)=="#") {}//Ignore
+                else if(llList2String(lList,0) == "commandEnabled"){
+                    if(llToLower(llList2String(lList,1))=="true")
+                        commandEnabled=TRUE;
+                    else
+                        commandEnabled=FALSE;
+                }else if(llList2String(lList,0) == "channelID"){
+                    channelID = llList2Integer(lList,1);
+                
+                }else if(llList2String(lList,0) == "commandName"){
+                    commandName=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "touchEnabled"){
+                    if(llToLower(llList2String(lList,1)) == "true")
+                        touchEnabled=TRUE;
+                    else
+                        touchEnabled=FALSE;
+                } else if(llList2String(lList,0) == "displayChat"){
+                    if(llToLower(llList2String(lList,1)) == "true")
+                        displayChat = TRUE;
+                    else
+                        displayChat = FALSE;
+                } else if(llList2String(lList,0) == "displayPopup"){
+                    if(llToLower(llList2String(lList,1)) == "true"){
+                        displayPopup = TRUE;
+                    }else
+                        displayPopup = FALSE;
+                } else if(llList2String(lList,0) == "hudLinkEnabled"){
+                    if(llToLower(llList2String(lList,1))=="true"){
+                        hudLinkEnabled=TRUE;
+                    }else
+                        hudLinkEnabled=FALSE;
+                }  else if(llList2String(lList,0) == "hudLoc") {
+                    if(llToLower(llList2String(lList,1)) == "local"){
+                        hudLoc="local";
+                    } else if(llToLower(llList2String(lList,1)) == "remote"){
+                        hudLoc = "remote";
+                    } else if(llToLower(llList2String(lList,1)) == "hud"){
+                        hudLoc="hud";
+                    }
+                } else if(llList2String(lList,0) == "hudID"){
+                    if(llToLower(llList2String(lList,1)) == "random"){
+                        userID  = uniqueUserID(idA);
+                        hudID = userID+"HUD";
+                    }
+                }
+                readLineID = llGetNotecardLine(configFile,line++);
+            } else {
+                llOwnerSay("System Initialized");
+            }
+        }
  
     } 
     
