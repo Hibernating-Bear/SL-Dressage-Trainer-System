@@ -47,127 +47,6 @@ list currentPattern;
 integer hudListenerCom;
 key globalUserID;
 
-//Initialisation 
-init () {
-    
-    // make sure the file exists and is a notecard
-    if(llGetInventoryType(configFile) != INVENTORY_NOTECARD)
-    {
-        // notify owner of missing file
-        llOwnerSay("Missing inventory Notecard: " + configFile);
-        return; // don't do anything else
-    }
- 
-    // initialize to start reading from first line
-    line = 0;
- 
-    // read the first line
-    readLineID = llGetNotecardLine(configFile, line++);
- 
-}
-
-processConfiguration(string data)
-{
-    // End of Configuration File
-    if(data == EOF)
-    {
-        string commandStatus;
-        string touchStatus;
-        // Tell Owner What was Loaded
-        llOwnerSay("System Initialised");
- 
-        // When Done Sending Config Values, Exit Sub-Routine
-        llListen(channelID,"", NULL_KEY, "");
-        return;
-    }
- 
-    // if we are not working with a blank line
-    if(data != "")
-    {
-        // if the line does not begin with a comment
-        if(llSubStringIndex(data, "#") != 0)
-        {
-            // find first equal sign
-            integer i = llSubStringIndex(data, "=");
- 
-            // if line contains equal sign
-            if(i != -1)
-            {
-                // get name of name/value pair
-                string name = llGetSubString(data, 0, i - 1);
- 
-                // get value of name/value pair
-                string value = llGetSubString(data, i + 1, -1);
- 
-                // trim name
-                list temp = llParseString2List(name, [" "], []);
-                name = llDumpList2String(temp, " ");
- 
-                // make name lowercase (case insensitive)
-                name = llToLower(name);
- 
-                // trim value
-                temp = llParseString2List(value, [" "], []);
-                value = llDumpList2String(temp, " ");
- 
-                // Parse Value in Config to Variable in Script
-                    // Command Channel
-                    if(name == "channelid"){
-                        channelID = (integer)value;
-                    }
-                    // Command Name
-                    else if(name == "cmdhudtune"){
-                        cmdHUDTune = value;
-                    }
-                    // Unlock Command
-                    else if(name == "unlockcmd"){
-                        unlockCommand = value;
-                    }
-                    // Lock Command
-                    else if(name == "lockcmd"){
-                        lockCommand = value;
-                    }
-                    // Bow Animation
-                    else if (name == "bowani"){
-                        bowAni = value;
-                    }
-                    //Whip Sound
-                    else if (name == "whipsound"){
-                        whipSound = value;   
-                    }    
-                    //Whip Message Enabled
-                    else if (name == "whipmsgenabled"){
-                        string tempValue = llToLower(value);
-                        if (tempValue == "true"){
-                            whipMsgEnabled = TRUE;
-                        }
-                        else{
-                            whipMsgEnabled = FALSE;
-                        }    
-                    }
-                    //Whip Message
-                    else if (name == "whipmsg"){
-                        whipMsg = value;    
-                    }    
-                    
-                    
-                    
-                    // Unknown Config Value    
-                    else{
-                        llOwnerSay("Unknown configuration value: " + name + " on line " + (string)line);
-                    }
-            }
-            else  // Line has no Equals (=) Sign
-            {
-                llOwnerSay("Configuration could not be read on line " + (string)line);
-            }
-        }
-    }
- 
-    // Read Next Line in Config File
-    readLineID = llGetNotecardLine(configFile, line++);
- 
-}
 
 string left(string src, string divider) {
     integer index = llSubStringIndex( src, divider );
@@ -206,7 +85,6 @@ hudClear(){
 default
 { 
     state_entry() {
-        init();
         currentPattern = [];
         id = llGetOwner();
         globalUserID = id;
@@ -220,8 +98,7 @@ default
     
      on_rez(integer start_param)
     {
-        llResetScript();
-        init();         
+        llResetScript();       
     }
     listen(integer channel, string name, key id, string message) {
         
@@ -298,8 +175,39 @@ default
     }
     dataserver(key request_id, string data)
     {
-        if(request_id == readLineID)
-            processConfiguration(data);
+        if(request_id == readLineID){
+            if(data!=EOF){
+                list lList=llParseString2List(data,[" = "," "],[]);
+                if(llList2String(lList,0)=="#") {}//Ignore
+                else if(llList2String(lList,0) == "channelID"){
+                    channelID = llList2Integer(lList,1);
+                
+                }else if(llList2String(lList,0) == "cmdHUDTune"){
+                    cmdHUDTune=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "lockCommand"){
+                    lockCommand=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "unlockCommand"){
+                    unlockCommand=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "lockCommand"){
+                    lockCommand=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "bowAni"){
+                    bowAni=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "whipSound"){
+                    whipSound=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "whipMsg"){
+                    whipMsg=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "whipMsgEnabled"){
+                    if(llToLower(llList2String(lList,1))=="true"){
+                        whipMsgEnabled=TRUE;
+                    }else
+                        whipMsgEnabled=FALSE;
+                }
+                readLineID = llGetNotecardLine(configFile,line++);
+            } else {
+                llListen(channelID, "", "", "");
+                llOwnerSay("System Initialized");
+            }
+        }
  
     } 
     
