@@ -145,12 +145,8 @@ default
                     cmdWhip=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "cmdTap"){
                     cmdTap=llList2String(lList,1);
-                }else if(llList2String(lList,0) == "curMode"){
-                    curMode=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "cmdToggle"){
                     cmdToggle=llList2String(lList,1);
-                }else if(llList2String(lList,0) == "chatStatus"){
-                    chatStatus=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "whipSound"){
                     whipSound=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "oneWhip"){
