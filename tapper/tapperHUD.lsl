@@ -20,6 +20,8 @@ integer channelID;
 string cmdWhip;
 //Change Mode Tap
 string cmdTap;
+//Change Mode Reign
+string cmdRein;
 
 //Mode
 string curMode;
@@ -52,6 +54,14 @@ string fourTap;
 string fiveTap;
 list tapMsgs;
 
+//Rein Settings
+string oneRein;
+string twoRein;
+string threeRein;
+string fourRein;
+string fiveRein;
+list reinMsgs;
+
 //Variables
 key id;
 key globalUserID;
@@ -82,6 +92,8 @@ processHUD(integer total){
             outMessage = llList2String(whipMsgs, total);        
         }else if (curMode == "tap"){
             outMessage = llList2String(tapMsgs, total);
+        }else if (curMode == "rein"){
+            outMessage = llList2String(reinMsgs, total);
         }
         llSay(0, llGetDisplayName(globalUserID) + " " + outMessage);
     }
@@ -104,9 +116,7 @@ default
     state_entry() {
         id = llGetOwner();
         globalUserID = id;
-        init();
-        //llRequestPermissions(id, PERMISSION_TRIGGER_ANIMATION);
-        
+        init();        
     }
 
     
@@ -125,18 +135,30 @@ default
             llMessageLinked(LINK_ALL_CHILDREN, 0, "change2Tap", "");
             llOwnerSay("Set to Tap Mode");
         }
+        if (id == idCom && llToLower(message) == llToLower(cmdRein)){
+            llMessageLinked(LINK_ALL_CHILDREN, 0, "change2Rein", "");
+            if (chatStatus == "Hidden"){
+                llMessageLinked(LINK_ALL_CHILDREN, 0, "chatToggle", "");
+            }    
+            llOwnerSay("Set to Reins Mode");
+        }
         if (id == idCom && llToLower(message) == llToLower(cmdToggle)){
-            llMessageLinked(LINK_ALL_CHILDREN, 0, "chatToggle", "");
-            if (chatStatus == "Showing"){
-            
-            }else{
-            
+            if (curMode == "rein"){
+                llOwnerSay("Can't change chat display in Reins mode!");
+                return;    
             }
-            llOwnerSay("Chat Toggle");
+            else{
+                llMessageLinked(LINK_ALL_CHILDREN, 0, "chatToggle", "");
+            }
+            if (chatStatus == "Showing" && curMode != "rein"){
+                llOwnerSay("Chat Toggled to Hidden");    
+            }else{
+                llOwnerSay("Chat Toggled to Showing");
+            }
         }
         if (id == idCom && llToLower(message) == "settings"){
             llMessageLinked(LINK_ALL_CHILDREN, 0, "query", "");
-            llRegionSayTo(id, 0, "\nCurrent Settings\n\nCommand Channel: " + (string)channelID + "\nChange to Whip: " + cmdWhip + "\nChange to Tap: " + cmdTap + "\nToggle Chat Output: " + cmdToggle + "\nChat Output: " + chatStatus);
+            llRegionSayTo(id, 0, "\nCurrent Settings\n\nCommand Channel: " + (string)channelID + "\nChange to Whip: " + cmdWhip + "\nChange to Tap: " + cmdTap + "\nChange to Reins: " + cmdRein + "\nToggle Chat Output: " + cmdToggle + "\nChat Output: " + chatStatus);
         }
         
     }
@@ -159,6 +181,8 @@ default
             curMode = "whip";
         }else if (msg == "tap"){
             curMode = "tap";
+        }else if (msg == "rein"){
+            curMode = "rein";
         }else if (msg == "Showing"){
             chatStatus = "Showing";
         }else if (msg == "Hidden"){
@@ -183,6 +207,8 @@ default
                     cmdWhip=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "cmdTap"){
                     cmdTap=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "cmdRein"){
+                    cmdRein=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "cmdToggle"){
                     cmdToggle=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "whipSound"){
@@ -209,12 +235,23 @@ default
                     fourTap=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "fiveTap"){
                     fiveTap=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "oneRein"){
+                    oneRein=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "twoRein"){
+                    twoRein=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "threeRein"){
+                    threeRein=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "fourRein"){
+                    fourRein=llList2String(lList,1);
+                }else if(llList2String(lList,0) == "fiveRein"){
+                    fiveRein=llList2String(lList,1);
                 }
                 readLineID = llGetNotecardLine(configFile,line++);
             } else {
                 llListen(channelID, "", "", "");
                 whipMsgs = [" ", oneWhip, twoWhip, threeWhip, fourWhip, fiveWhip];
                 tapMsgs = [" ", oneTap, twoTap, threeTap, fourTap, fiveTap];
+                reinMsgs = [" ", oneRein, twoRein, threeRein, fourRein, fiveRein];
                 llMessageLinked(LINK_ALL_CHILDREN, 0, "query", "");
                 llOwnerSay("System Initialized");
             }

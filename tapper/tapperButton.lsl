@@ -27,6 +27,10 @@ default
                 llSetObjectDesc("tap");
                 llMessageLinked(LINK_ROOT, 0, llGetObjectDesc(), "");  
             }
+            if (msg == "change2Rein"){
+                llSetObjectDesc("rein");
+                llMessageLinked(LINK_ROOT, 0, llGetObjectDesc(), "");  
+            }
         }
         if (tapTotal == 2){
             if (msg == "chatToggle"){
