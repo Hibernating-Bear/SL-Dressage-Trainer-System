@@ -27,8 +27,8 @@ default
                 llSetObjectDesc("tap");
                 llMessageLinked(LINK_ROOT, 0, llGetObjectDesc(), "");  
             }
-            if (msg == "change2Reign"){
-                llSetObjectDesc("reign");
+            if (msg == "change2Rein"){
+                llSetObjectDesc("rein");
                 llMessageLinked(LINK_ROOT, 0, llGetObjectDesc(), "");  
             }
         }
