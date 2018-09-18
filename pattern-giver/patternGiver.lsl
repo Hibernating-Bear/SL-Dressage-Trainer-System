@@ -302,7 +302,7 @@ default
                             output+="\nCommand Set To: /"+ (string)channelID+" "+commandName;
                         }
                     
-                        llSetText(output, <1,1,1>,1);
+                        llSetText(output + "\n \n \n ", <1,1,1>,1);
                     }
                 }
                 llListen(channelID, "", "", "");
