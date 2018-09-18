@@ -3,8 +3,12 @@
 //Created 18 September 2018
 //
 
-//You are free to use this code, or modify it, but please acknowledge 
-//and let the original author if you do make changes.
+//This code is licenced under the GNU GPL v2.0
+//If you wish to view the code on GitHub the repository is at
+//https://github.com/Hibernating-Bear/SL-Dressage-Trainer-System
+//
+//If you do modify the code, please let the original author know or fork the code
+//on GitHub.
 
 
 //Global Variables
