@@ -3,8 +3,12 @@
 //Created 18 September 2018
 //
 
-//You are free to use this code, or modify it, but please acknowledge 
-//and let the original author if you do make changes.
+//This code is licenced under the GNU GPL v2.0
+//If you wish to view the code on GitHub the repository is at
+//https://github.com/Hibernating-Bear/SL-Dressage-Trainer-System
+//
+//If you do modify the code, please let the original author know or fork the code
+//on GitHub.
 
 
 //Global Variables
@@ -37,6 +41,7 @@ string twoWhip;
 string threeWhip;
 string fourWhip;
 string fiveWhip;
+list whipMsgs;
 
 //Tap Settings
 string tapSound;
@@ -45,7 +50,7 @@ string twoTap;
 string threeTap;
 string fourTap;
 string fiveTap;
-
+list tapMsgs;
 
 //Variables
 key id;
@@ -70,6 +75,28 @@ init () {
  
 }
 
+processHUD(integer total){
+    string outMessage;
+    if (chatStatus == "Showing"){
+        if (curMode == "whip"){
+            outMessage = llList2String(whipMsgs, total);        
+        }else if (curMode == "tap"){
+            outMessage = llList2String(tapMsgs, total);
+        }
+        llSay(0, llGetDisplayName(globalUserID) + " " + outMessage);
+    }
+    integer i;
+    
+    for (i=0; i < total; ++i){
+        if (curMode == "whip"){
+            llTriggerSound(whipSound, 1.0);
+        }else if (curMode == "tap"){
+            llTriggerSound(tapSound, 1.0);
+        }
+        llSleep(0.3);
+    }     
+    
+}
 
 
 default
@@ -78,7 +105,7 @@ default
         id = llGetOwner();
         globalUserID = id;
         init();
-        llRequestPermissions(id, PERMISSION_TRIGGER_ANIMATION);
+        //llRequestPermissions(id, PERMISSION_TRIGGER_ANIMATION);
         
     }
 
@@ -98,7 +125,7 @@ default
             llMessageLinked(LINK_ALL_CHILDREN, 0, "change2Tap", "");
             llOwnerSay("Set to Tap Mode");
         }
-        if (id == idCom && llToLower(message) == llToLower(chatToggle)){
+        if (id == idCom && llToLower(message) == llToLower(cmdToggle)){
             llMessageLinked(LINK_ALL_CHILDREN, 0, "chatToggle", "");
             if (chatStatus == "Showing"){
             
@@ -108,7 +135,8 @@ default
             llOwnerSay("Chat Toggle");
         }
         if (id == idCom && llToLower(message) == "settings"){
-            llRegionSayTo(id, 0, "\nCurrent Settings\n\nCommand Channel: " + (string)channelID + "\nChange to Whip: " + cmdWhip + "\nChange to Tap: " + cmdTap + "\nToggle Chat Output: " + chatToggle + "\nChat Output: " + chatStatus);
+            llMessageLinked(LINK_ALL_CHILDREN, 0, "query", "");
+            llRegionSayTo(id, 0, "\nCurrent Settings\n\nCommand Channel: " + (string)channelID + "\nChange to Whip: " + cmdWhip + "\nChange to Tap: " + cmdTap + "\nToggle Chat Output: " + cmdToggle + "\nChat Output: " + chatStatus);
         }
         
     }
@@ -117,15 +145,25 @@ default
     
     link_message(integer sender_num, integer num, string msg, key id)
     {
-        if (msg == "bow"){
-            llStartAnimation(bowAni); 
+        if (msg == "one"){
+            processHUD(1);   
+        }else if (msg == "two"){
+            processHUD(2);   
+        }else if (msg == "three"){
+            processHUD(3);   
+        }else if (msg == "four"){
+            processHUD(4);  
+        }else if (msg == "five"){
+            processHUD(5);   
+        }else if (msg == "whip"){
+            curMode = "whip";
+        }else if (msg == "tap"){
+            curMode = "tap";
+        }else if (msg == "Showing"){
+            chatStatus = "Showing";
+        }else if (msg == "Hidden"){
+            chatStatus = "Hidden";
         }
-        if (msg == "whip"){
-            llTriggerSound(whipSound, 1.0);
-            if (whipMsgEnabled == TRUE){
-                llSay(0, llGetDisplayName(globalUserID) + " " + whipMsg);
-            }
-        } 
     }
     
     changed(integer change)
@@ -175,6 +213,9 @@ default
                 readLineID = llGetNotecardLine(configFile,line++);
             } else {
                 llListen(channelID, "", "", "");
+                whipMsgs = [" ", oneWhip, twoWhip, threeWhip, fourWhip, fiveWhip];
+                tapMsgs = [" ", oneTap, twoTap, threeTap, fourTap, fiveTap];
+                llMessageLinked(LINK_ALL_CHILDREN, 0, "query", "");
                 llOwnerSay("System Initialized");
             }
         }
