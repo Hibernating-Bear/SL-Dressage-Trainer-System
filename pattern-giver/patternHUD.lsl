@@ -206,9 +206,9 @@ default
                 
                 }else if(llList2String(lList,0) == "cmdHUDTune"){
                     cmdHUDTune=llList2String(lList,1);
-                }else if(llList2String(lList,0) == "lockCommand"){
+                }else if(llList2String(lList,0) == "lockcmd"){
                     lockCommand=llList2String(lList,1);
-                }else if(llList2String(lList,0) == "unlockCommand"){
+                }else if(llList2String(lList,0) == "unlockcmd"){
                     unlockCommand=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "lockCommand"){
                     lockCommand=llList2String(lList,1);
