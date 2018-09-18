@@ -210,8 +210,6 @@ default
                     lockCommand=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "unlockcmd"){
                     unlockCommand=llList2String(lList,1);
-                }else if(llList2String(lList,0) == "lockCommand"){
-                    lockCommand=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "bowAni"){
                     bowAni=llList2String(lList,1);
                 }else if(llList2String(lList,0) == "whipSound"){
