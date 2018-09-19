@@ -187,10 +187,20 @@ default
     }
     
     listen(integer channel, string name, key id, string message) {
-        if (llToLower(message) == "hudname"){
+        key idCom = llGetOwner();
+        
+        if (id == idCom && llToLower(message) == "silver"){
+            llOwnerSay("Band Set to Silver");
+            llSetTexture("Texture bracelet Full Permissions (silver)", ALL_SIDES);    
+        }
+        if (id == idCom && llToLower(message) == "gold"){
+            llOwnerSay("Band Set to Gold");
+            llSetTexture("Texture bracelet Full Permissions (gold)", ALL_SIDES);    
+        }
+         if (id == idCom && llToLower(message) == "hudname"){
             llOwnerSay("HUD Link set to: "+ hudID);    
         }
-        if (llToLower(message) == "settings"){
+        if (id == idCom && llToLower(message) == "settings"){
             string commandStatus;
             string touchStatus;
             // Tell Owner What was Loaded
